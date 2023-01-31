@@ -1,7 +1,7 @@
 require 'grape'
 
 module API::V1
-    class Book < Grape::API
+    class Library < Grape::API
         resource :books do
             desc 'Create a book'
             params do
@@ -12,8 +12,8 @@ module API::V1
                 requires :isbn, type: String, desc: 'Book ISBN number'
             end
             post do
-                byebug
-                book = Book.create!(params)
+                # byebug
+                book = Book.create!(declared(params))
                 { id: book.id, title: book.title, language: book.language, price: book.price, author: book.author, isbn: book.isbn }
             end
   
@@ -58,9 +58,8 @@ module API::V1
 
 
             desc 'Get Details of All the Books'
-            get "details" do
-                book = Book.get_all_books
-                {details: book}
+            get do
+                Book.all
             end
 
         end
