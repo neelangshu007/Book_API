@@ -16,6 +16,24 @@ module API::V1
                 book = Book.create!(declared(params))
                 { id: book.id, title: book.title, language: book.language, price: book.price, author: book.author, isbn: book.isbn }
             end
+
+            desc 'Create multiple books'
+            params do
+                requires :books, type: Array, desc: 'Array of books'
+            end
+            post '/bulk_create' do
+                books = []
+                params[:books].each do |book_params|
+                    books << Book.create!({
+                        title: book_params[:title],
+                        language: book_params[:language],
+                        price: book_params[:price],
+                        author: book_params[:author],
+                        isbn: book_params[:isbn]
+                    })
+                end
+                {message: 'Books Created Successfully',books: books }
+            end
   
             desc 'Update a book'
             params do
@@ -31,7 +49,28 @@ module API::V1
                 book.update(declared(params))
                 { id: book.id, title: book.title, language: book.language, price: book.price, author: book.author, isbn: book.isbn }
             end
+
+
+            desc 'Update multiple books'
+            params do
+                requires :books, type:Array, desc: 'Array of books'
+            end
+            put '/bulk_update' do
+                books = []
+                params[:books].each do |book_params|
+                    book = Book.find(book_params[:id])
+                    book.update({
+                        title: book_params[:title] || book.title,
+                        language: book_params[:language] || book.language,
+                        price: book_params[:price] || book.price,
+                        author: book_params[:author] || book.author,
+                        isbn: book_params[:isbn] || book.isbn
+                    })
+                end
+                {message: "Books Successfulyy Updated", books: books}
+            end
         
+
             desc 'Delete a book'
             params do
                 requires :id, type: Integer, desc: 'Book ID'
@@ -60,6 +99,55 @@ module API::V1
             desc 'Get Details of All the Books'
             get do
                 Book.all
+            end
+
+
+            desc 'Get Details of a Book by ID'
+            params do
+                requires :id, type: Integer, desc: 'Book ID'
+            end
+            get ':id' do
+                book = Book.find(params[:id])
+                {book: book }
+            end
+
+
+            desc 'Retrieve all books with a given language'
+            params do
+                requires :language, type: String, desc: "Book Language"
+            end
+            get '/language/:language' do
+                books = Book.where(language: params[:language])
+                {books: books }
+            end
+
+            desc 'Get Details of a Book by ISBN number'
+            params do
+                requires :isbn, type: String, desc: 'Book ISBN Number'
+            end
+            get '/isbn/:isbn' do
+                book = Book.find_by(isbn: params[:isbn])
+                {book: book }
+            end
+
+            desc 'Retrieve all books within a given price range'
+            params do
+                requires :min_price, type: Float, desc: 'Minimum book price'
+                requires :max_price, type: Float, desc: 'Maximum book price'
+            end
+            get '/price_range/:min_price/:max_price' do
+                books = Book.where(price: params[:min_price]..params[:max_price])
+                {books: books }
+            end
+
+            desc 'Retrieve all books sorted by price'
+            params do
+                requires :order, type: String, desc: 'Sort order (asc or desc)'
+            end
+            get '/sort_by_price/:order' do
+              order = params[:order] == 'asc' ? :asc : :desc
+              books = Book.order(price: order)
+              {books: books}
             end
 
         end
