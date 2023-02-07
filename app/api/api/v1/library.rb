@@ -53,12 +53,15 @@ module API::V1
 
             desc 'Update multiple books'
             params do
-                requires :books, type:Array, desc: 'Array of books'
+                requires :books, type: Array, desc: 'Array of books'
             end
             put '/bulk_update' do
                 books = []
                 params[:books].each do |book_params|
-                    book = Book.find(book_params[:id])
+                    book = Book.find_by(id: book_params[:id])
+                    if book.nil?
+                        error!({ error: "Book with ID #{book_params[:id]} not found" }, 404)
+                    end
                     book.update({
                         title: book_params[:title] || book.title,
                         language: book_params[:language] || book.language,
@@ -66,6 +69,7 @@ module API::V1
                         author: book_params[:author] || book.author,
                         isbn: book_params[:isbn] || book.isbn
                     })
+                    books << book
                 end
                 {message: "Books Successfulyy Updated", books: books}
             end
@@ -78,6 +82,15 @@ module API::V1
             delete ':id' do
                 book = Book.find(params[:id])
                 book.destroy
+            end
+
+            desc 'Delete multiple books'
+            params do
+                requires :id, type: Array, desc: 'Array of book IDs'
+            end
+            delete '/bulk_delete' do
+                Book.destroy(params[:id])
+                {message: 'Books deleted successfully'}
             end
         
             desc 'Get book with highest price'
