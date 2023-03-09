@@ -1,24 +1,14 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Create an Rails app to manage Books
 
-Things you may want to cover:
+A Book will have following details
+Title, language, Price, Author, ISBN number
 
-* Ruby version
+Create APIs for the following features
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+1.) To create entries in the book table
+2.) To update the details of the book table
+3.) To delete a book
+4.) To get the book with highest price
+5.) To get details of all the book with a given author name
